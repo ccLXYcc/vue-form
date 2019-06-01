@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>表单</title>
+  <link rel="stylesheet" href="./libs/bootstrap.css"/>
+  <style>
+  .avatar{width: 20px;height: 20px;}
+  </style>
+</head>
+<body>
+  <div id="app">
+    姓名：<input type="text" v-model='name'/>
+    性别：<input type="text" v-model='sex'/>
+    头像：<input type="text" v-model='img'/>
+    爱好：<input type="text" v-model='hobby'/>
+    年龄：<input type="text" v-model='age'/>
+    <button @click="addHandle()">添加</button>
+    <hr/>
+    <input type="text" v-model="keyWord" placeholder="关键字"/>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>姓名</th>
+          <th>性别</th>
+          <th>头像</th>
+          <th>爱好</th>
+          <th>年龄</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(p,i) in searchResult" :key="i">
+          <td>{{i+1}}</td>
+          <td>{{p.name}}</td>
+          <td>{{p.sex}}</td>
+          <td><img :src="p.img" class="avatar" alt="avatar"/></td>
+          <td>{{p.hobby}}</td>
+          <td>{{p.age}}</td>
+          <td>
+            <a href="javascript:void(0)"
+             @click="editHandle(p.id)">修改</a>|
+            <a href="javascript:void(0)"
+            @click="delHandle(p.id)">删除</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <script src="./libs/vue.js"></script>
+  <script>
+  var app = new Vue({
+    el:'#app',
+    data:{
+      img:'',
+      name:'',
+      sex:'',
+      hobby:'',
+      age:'',
+      person:[],
+      selectedIndex:-1,//默认选中
+      keyWord:''
+    },
+    methods: {
+      addHandle(){
+        //姓名不能为空
+        if(this.name){
+          if(this.selectedIndex>-1){//点击修改的时候
+            this.person[this.selectedIndex].name = this.name;
+            this.person[this.selectedIndex].age = this.age;
+            this.person[this.selectedIndex].img = this.img;
+            this.person[this.selectedIndex].sex = this.sex;
+            this.person[this.selectedIndex].hobby = this.hobby;
+            this.selectedIndex = -1;
+          }else{
+            this.person.push({
+              id:Date.now(),
+              name:this.name,
+              sex:this.sex,
+              //设置个默认头像
+              img:this.img?this.img:'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1937445174,2133528823&fm=27&gp=0.jpg',
+              hobby:this.hobby,
+              age:this.age
+            });
+          }
+          //点击添加后清空输入框
+          this.name ='';
+          this.age ='';
+          this.img ='';
+          this.sex ='';
+          this.hobby ='';
+        }else{
+          alert('名字不能为空')
+        }
+      },
+      findIndexById(id){
+        return this.person.findIndex(item=>item.id == id)
+      },
+      editHandle(id){
+        //当点击修改的时候，输入框中为当前选中的一行
+        this.selectedIndex = this.findIndexById(id);
+        this.name= this.person[this.selectedIndex].name;
+        this.age= this.person[this.selectedIndex].age;
+        this.img= this.person[this.selectedIndex].img;
+        this.sex= this.person[this.selectedIndex].sex;
+        this.hobby= this.person[this.selectedIndex].hobby;
+      },
+      delHandle(id){
+        var index = this.findIndexById(id)
+        if(confirm('是否删除此项')){
+          this.person.splice(index, 1);
+        }
+      }
+    },
+    computed:{//根据计算属性进行搜索
+      searchResult(){
+        if(this.keyWord){
+          return this.person.filter(item =>
+          item.name.indexOf(this.keyWord)>-1)
+        }else{
+          return this.person
+        }
+      }
+    }
+  })
+  </script>
+</body>
+</html>
